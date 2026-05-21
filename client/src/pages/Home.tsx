@@ -1,340 +1,942 @@
-import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle2, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
+import {
+  ChevronRight,
+  LogOut,
+  Home as HomeIcon,
+  BarChart3,
+  CheckCircle2,
+  AlertCircle,
+  Plus,
+  Edit2,
+  Trash2,
+  Eye,
+  EyeOff,
+  ArrowUp,
+  ArrowDown,
+  Calendar,
+  DollarSign,
+  TrendingUp,
+  Clock,
+  FileText,
+  Smartphone,
+} from "lucide-react";
 
 /**
- * TaxEase Landing Page
- * Design Philosophy: Notion-Inspired Minimalism with Playful Accents
+ * CreTax App - 크리에이터 세금, 혼자서도 쉽게
  * 
- * Key Design Elements:
- * - Primary Color: #7AF8BC (Mint Green) - Trust, Growth, Positive Change
- * - Typography: Pretendard (Korean) + Plus Jakarta Sans (English)
- * - Layout: Asymmetric, card-based sections with generous whitespace
- * - Interaction: Smooth transitions, hover effects, fade-in animations
+ * Design Philosophy: Manus Minimalism
+ * - Primary Color: #7AF8BC (Mint Green)
+ * - Clean, professional, accessible interface
+ * - Mobile-first responsive design
+ * - Smooth transitions and micro-interactions
  */
 
+type AppFlow = 
+  | "splash"
+  | "auth"
+  | "onboarding"
+  | "diagnosis"
+  | "income-connection"
+  | "income-classification"
+  | "expense-connection"
+  | "dashboard"
+  | "tax-check"
+  | "report-preparation"
+  | "report-generation"
+  | "homeTax-guide"
+  | "report-complete";
+
+interface UserProfile {
+  name: string;
+  activities: string[];
+  incomeLevel: string;
+  businessRegistered: boolean;
+}
+
+interface IncomeItem {
+  id: string;
+  source: string;
+  amount: number;
+  category: string;
+  date: string;
+}
+
 export default function Home() {
-  const [isVisible, setIsVisible] = useState(false);
+  const [currentFlow, setCurrentFlow] = useState<AppFlow>("splash");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [incomeData, setIncomeData] = useState<IncomeItem[]>([
+    { id: "1", source: "Google AdSense", amount: 1240000, category: "애드센스", date: "2025-01-15" },
+    { id: "2", source: "Brand A", amount: 2000000, category: "광고/협찬", date: "2025-01-10" },
+    { id: "3", source: "Sponsorship", amount: 1500000, category: "협찬", date: "2025-01-05" },
+  ]);
+  const [selectedDiagnosis, setSelectedDiagnosis] = useState({
+    activities: [] as string[],
+    incomeLevel: "",
+    incomeTypes: [] as string[],
+    businessRegistered: "",
+  });
+  const [onboardingStep, setOnboardingStep] = useState(1);
+  const [diagnosisStep, setDiagnosisStep] = useState(1);
+  const [showPassword, setShowPassword] = useState(false);
 
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
-
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-border">
-        <div className="container flex items-center justify-between h-16">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-lg">T</span>
-            </div>
-            <span className="font-bold text-lg text-foreground">TaxEase</span>
-          </div>
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-foreground hover:text-primary transition-colors">
-              기능
-            </a>
-            <a href="#benefits" className="text-foreground hover:text-primary transition-colors">
-              이점
-            </a>
-            <a href="#cta" className="text-foreground hover:text-primary transition-colors">
-              시작하기
-            </a>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="section-padding bg-gradient-to-b from-white via-white to-primary/5">
-        <div className="container">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className={`${isVisible ? "fade-in" : "opacity-0"}`}>
-              <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight">
-                크리에이터, 프리랜서의 <span className="text-gradient">세금 고민</span> 끝내기
-              </h1>
-              <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
-                복잡한 종합소득세 신고, 이제 스마트하게 해결하세요. 자동 계산부터 절세 가이드까지 모든 것을 한 곳에서 관리합니다.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <button className="btn-primary">
-                  무료로 시작하기
-                  <ArrowRight className="inline-block ml-2 w-5 h-5" />
-                </button>
-                <button className="btn-secondary">
-                  데모 보기
-                </button>
-              </div>
-              <div className="mt-12 flex items-center gap-8 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-primary" />
-                  <span>가입 없이 시작</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-primary" />
-                  <span>완전 무료</span>
-                </div>
-              </div>
-            </div>
-            <div className={`${isVisible ? "fade-in" : "opacity-0"} delay-200`}>
-              <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663680512968/7Jzaja3V5zt52djpUN3p39/hero-illustration-b2U5BpGYHoSxDrMP35NBDN.webp"
-                alt="Hero Illustration"
-                className="w-full h-auto rounded-2xl shadow-2xl"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Problem Section */}
-      <section id="benefits" className="section-padding bg-white">
-        <div className="container">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-foreground mb-4">이런 고민 많으시죠?</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              크리에이터와 프리랜서들이 가장 많이 겪는 세금 관련 문제들을 TaxEase가 해결해드립니다.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                title: "세금 계산이 복잡해요",
-                description: "소득, 지출, 공제 항목이 많아서 정확한 세금을 계산하기 어렵습니다.",
-              },
-              {
-                title: "절세 방법을 몰라요",
-                description: "어떻게 하면 합법적으로 세금을 줄일 수 있는지 알 수 없습니다.",
-              },
-              {
-                title: "신고 기한을 놓쳐요",
-                description: "바쁜 일정 속에서 신고 기한을 깜빡하기 쉽습니다.",
-              },
-            ].map((item, index) => (
-              <div
-                key={index}
-                className="card-hover p-8 bg-gradient-to-br from-white to-primary/5 rounded-2xl border border-border"
-              >
-                <img
-                  src="https://d2xsxph8kpxj0f.cloudfront.net/310519663680512968/7Jzaja3V5zt52djpUN3p39/problem-icons-Szhq9BuZiL5QrkU5pyETk3.webp"
-                  alt={item.title}
-                  className="w-full h-40 object-cover rounded-lg mb-6"
-                />
-                <h3 className="text-xl font-semibold text-foreground mb-3">{item.title}</h3>
-                <p className="text-muted-foreground">{item.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Solution Section */}
-      <section id="features" className="section-padding bg-gradient-to-b from-white to-primary/5">
-        <div className="container">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-foreground mb-4">TaxEase가 해결해드립니다</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              4가지 핵심 기능으로 세금 관리를 완벽하게 자동화하세요.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              {
-                title: "자동 계산",
-                description: "정확한 세금 계산",
-                icon: "🧮",
-              },
-              {
-                title: "절세 가이드",
-                description: "맞춤형 절세 전략",
-                icon: "💡",
-              },
-              {
-                title: "신고 도움",
-                description: "단계별 신고 가이드",
-                icon: "📋",
-              },
-              {
-                title: "기록 관리",
-                description: "수입/지출 통합 관리",
-                icon: "📁",
-              },
-            ].map((feature, index) => (
-              <div
-                key={index}
-                className="card-hover p-6 bg-white rounded-2xl border border-border text-center"
-              >
-                <div className="text-4xl mb-4">{feature.icon}</div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Features Detail Section 1 */}
-      <section className="section-padding bg-white">
-        <div className="container">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-4xl font-bold text-foreground mb-6">
-                자동 계산으로 정확한 세금을 한 번에
-              </h2>
-              <p className="text-lg text-muted-foreground mb-8">
-                복잡한 세금 계산 공식은 잊으세요. TaxEase가 자동으로 정확하게 계산해드립니다.
-              </p>
-              <ul className="space-y-4 mb-8">
-                {[
-                  "소득과 지출 자동 분류",
-                  "공제 항목 자동 인식",
-                  "실시간 세금 예측",
-                  "오류 자동 감지",
-                ].map((item, index) => (
-                  <li key={index} className="flex items-center gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
-                    <span className="text-foreground">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <button className="btn-primary">
-                지금 시작하기
-              </button>
-            </div>
-            <div>
-              <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663680512968/7Jzaja3V5zt52djpUN3p39/feature-detail-1-kzdYV3MhazwBjD5AKiPKBr.webp"
-                alt="Auto Calculation Feature"
-                className="w-full h-auto rounded-2xl shadow-2xl"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Detail Section 2 */}
-      <section className="section-padding bg-gradient-to-b from-white to-primary/5">
-        <div className="container">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="order-2 lg:order-1">
-              <img
-                src="https://d2xsxph8kpxj0f.cloudfront.net/310519663680512968/7Jzaja3V5zt52djpUN3p39/feature-detail-2-DTer6CL6AxM7pk7bWBbJfj.webp"
-                alt="Tax Savings Feature"
-                className="w-full h-auto rounded-2xl shadow-2xl"
-              />
-            </div>
-            <div className="order-1 lg:order-2">
-              <h2 className="text-4xl font-bold text-foreground mb-6">
-                맞춤형 절세 전략으로 더 많이 남기세요
-              </h2>
-              <p className="text-lg text-muted-foreground mb-8">
-                당신의 소득 구조에 맞춘 절세 방법을 추천받으세요.
-              </p>
-              <ul className="space-y-4 mb-8">
-                {[
-                  "개인 맞춤 절세 전략",
-                  "합법적인 공제 항목 제안",
-                  "절세 효과 시뮬레이션",
-                  "세법 변경 자동 반영",
-                ].map((item, index) => (
-                  <li key={index} className="flex items-center gap-3">
-                    <Zap className="w-5 h-5 text-primary flex-shrink-0" />
-                    <span className="text-foreground">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <button className="btn-primary">
-                절세 전략 보기
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="section-padding bg-white">
-        <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { number: "50,000+", label: "활용 중인 크리에이터" },
-              { number: "평균 35%", label: "세금 절감 효과" },
-              { number: "4.9/5", label: "사용자 만족도" },
-            ].map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-5xl font-bold text-primary mb-2">{stat.number}</div>
-                <p className="text-lg text-muted-foreground">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section id="cta" className="section-padding bg-gradient-to-r from-primary/10 to-primary/5 border-t border-border">
-        <div className="container text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-            지금 바로 시작하세요
-          </h2>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            복잡한 세금 신고, 더 이상 고민하지 마세요. TaxEase와 함께 스마트하게 관리하세요.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="btn-primary">
-              무료 가입하기
-              <ArrowRight className="inline-block ml-2 w-5 h-5" />
-            </button>
-            <button className="btn-secondary">
-              문의하기
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-foreground text-white py-12">
-        <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold">T</span>
-                </div>
-                <span className="font-bold text-lg">TaxEase</span>
-              </div>
-              <p className="text-white/70">크리에이터와 프리랜서를 위한 스마트 세금 관리 솔루션</p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">제품</h4>
-              <ul className="space-y-2 text-white/70">
-                <li><a href="#" className="hover:text-white transition-colors">기능</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">요금</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">블로그</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">회사</h4>
-              <ul className="space-y-2 text-white/70">
-                <li><a href="#" className="hover:text-white transition-colors">소개</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">채용</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">문의</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">법률</h4>
-              <ul className="space-y-2 text-white/70">
-                <li><a href="#" className="hover:text-white transition-colors">이용약관</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">개인정보</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">쿠키 정책</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-white/20 pt-8 text-center text-white/70">
-            <p>&copy; 2024 TaxEase. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+  // 스플래시 화면
+  const SplashScreen = () => (
+    <div className="min-h-screen bg-gradient-to-b from-white to-primary/5 flex items-center justify-center p-4">
+      <div className="text-center">
+        <img
+          src="https://d2xsxph8kpxj0f.cloudfront.net/310519663680512968/7Jzaja3V5zt52djpUN3p39/cretax-logo-5nj6dB9vzbhvm8vpHWFLc5.webp"
+          alt="CreTax Logo"
+          className="w-24 h-24 mx-auto mb-6"
+        />
+        <h1 className="text-4xl font-bold text-foreground mb-2">CreTax</h1>
+        <p className="text-lg text-muted-foreground mb-12">크리에이터 세금, 혼자서도 쉽게</p>
+        <button
+          onClick={() => setCurrentFlow("auth")}
+          className="btn-primary"
+        >
+          시작하기
+        </button>
+      </div>
     </div>
   );
+
+  // 로그인/회원가입
+  const AuthScreen = () => (
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-foreground mb-2">로그인</h1>
+          <p className="text-muted-foreground">CreTax에 오신 것을 환영합니다</p>
+        </div>
+
+        <div className="space-y-3 mb-6">
+          {[
+            { name: "카카오", icon: "☕" },
+            { name: "네이버", icon: "🔗" },
+            { name: "구글", icon: "🔍" },
+            { name: "애플", icon: "🍎" },
+          ].map((provider) => (
+            <button
+              key={provider.name}
+              className="w-full py-3 px-4 border border-border rounded-xl hover:bg-secondary transition-colors flex items-center justify-center gap-2"
+            >
+              <span>{provider.icon}</span>
+              <span className="font-medium">{provider.name} 로그인</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="relative mb-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-border"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-background text-muted-foreground">또는</span>
+          </div>
+        </div>
+
+        <div className="space-y-4 mb-6">
+          <input
+            type="email"
+            placeholder="이메일"
+            className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="비밀번호"
+              className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+            <button
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
+          <button
+            onClick={() => {
+              setIsLoggedIn(true);
+              setCurrentFlow("onboarding");
+            }}
+            className="btn-primary w-full"
+          >
+            로그인
+          </button>
+        </div>
+
+        <p className="text-center text-sm text-muted-foreground">
+          세금 신고 자료는 암호화되어 안전하게 보관됩니다.
+        </p>
+      </div>
+    </div>
+  );
+
+  // 온보딩
+  const OnboardingScreen = () => (
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl">
+        {onboardingStep === 1 ? (
+          <div className="text-center">
+            <img
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663680512968/7Jzaja3V5zt52djpUN3p39/cretax-onboarding-1-RtdcwcnHs393kZCGhGvv8F.webp"
+              alt="Onboarding 1"
+              className="w-full h-64 object-cover rounded-2xl mb-8"
+            />
+            <h1 className="text-3xl font-bold text-foreground mb-4">
+              인스타, 유튜브, 협찬 수익…<br />
+              어디까지 신고해야 할지 헷갈리셨죠?
+            </h1>
+            <button
+              onClick={() => setOnboardingStep(2)}
+              className="btn-primary mt-8"
+            >
+              내 세금 상태 확인하기
+            </button>
+          </div>
+        ) : (
+          <div className="text-center">
+            <img
+              src="https://d2xsxph8kpxj0f.cloudfront.net/310519663680512968/7Jzaja3V5zt52djpUN3p39/cretax-onboarding-2-5RnTD9XA8rdkmsQMxejN5e.webp"
+              alt="Onboarding 2"
+              className="w-full h-64 object-cover rounded-2xl mb-8"
+            />
+            <h1 className="text-3xl font-bold text-foreground mb-6">
+              CreTax가 해주는 일
+            </h1>
+            <div className="grid grid-cols-2 gap-4 mb-8">
+              {[
+                { icon: "📊", title: "수익 자동 정리" },
+                { icon: "💡", title: "경비 추천" },
+                { icon: "🧮", title: "예상 세금 계산" },
+                { icon: "✅", title: "신고 체크리스트" },
+              ].map((item, i) => (
+                <div key={i} className="p-4 bg-primary/10 rounded-xl">
+                  <div className="text-3xl mb-2">{item.icon}</div>
+                  <p className="font-medium text-sm">{item.title}</p>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => setCurrentFlow("diagnosis")}
+              className="btn-primary w-full"
+            >
+              시작하기
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  // 진단 화면
+  const DiagnosisScreen = () => (
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold text-foreground">크리에이터 유형 진단</h1>
+            <span className="text-sm text-muted-foreground">{diagnosisStep}/4</span>
+          </div>
+          <div className="w-full bg-secondary rounded-full h-2">
+            <div
+              className="bg-primary h-2 rounded-full transition-all"
+              style={{ width: `${(diagnosisStep / 4) * 100}%` }}
+            ></div>
+          </div>
+        </div>
+
+        {diagnosisStep === 1 && (
+          <div>
+            <h2 className="text-xl font-semibold text-foreground mb-6">어떤 활동을 하나요?</h2>
+            <div className="space-y-3">
+              {["유튜브", "인스타그램", "틱톡", "블로그", "스트리밍", "강의/전자책", "기타"].map((activity) => (
+                <label key={activity} className="flex items-center p-4 border border-border rounded-xl cursor-pointer hover:bg-secondary/50">
+                  <input
+                    type="checkbox"
+                    checked={selectedDiagnosis.activities.includes(activity)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedDiagnosis({
+                          ...selectedDiagnosis,
+                          activities: [...selectedDiagnosis.activities, activity],
+                        });
+                      } else {
+                        setSelectedDiagnosis({
+                          ...selectedDiagnosis,
+                          activities: selectedDiagnosis.activities.filter((a) => a !== activity),
+                        });
+                      }
+                    }}
+                    className="w-5 h-5 accent-primary rounded"
+                  />
+                  <span className="ml-3 font-medium text-foreground">{activity}</span>
+                </label>
+              ))}
+            </div>
+            <button
+              onClick={() => setDiagnosisStep(2)}
+              disabled={selectedDiagnosis.activities.length === 0}
+              className="btn-primary w-full mt-8 disabled:opacity-50"
+            >
+              다음
+            </button>
+          </div>
+        )}
+
+        {diagnosisStep === 2 && (
+          <div>
+            <h2 className="text-xl font-semibold text-foreground mb-6">수익이 있나요?</h2>
+            <div className="space-y-3">
+              {["아직 없음", "가끔 있음", "매월 있음", "전업 수준"].map((level) => (
+                <label key={level} className="flex items-center p-4 border border-border rounded-xl cursor-pointer hover:bg-secondary/50">
+                  <input
+                    type="radio"
+                    name="income-level"
+                    checked={selectedDiagnosis.incomeLevel === level}
+                    onChange={() => setSelectedDiagnosis({ ...selectedDiagnosis, incomeLevel: level })}
+                    className="w-5 h-5 accent-primary"
+                  />
+                  <span className="ml-3 font-medium text-foreground">{level}</span>
+                </label>
+              ))}
+            </div>
+            <div className="flex gap-3 mt-8">
+              <button onClick={() => setDiagnosisStep(1)} className="btn-secondary flex-1">
+                이전
+              </button>
+              <button
+                onClick={() => setDiagnosisStep(3)}
+                disabled={!selectedDiagnosis.incomeLevel}
+                className="btn-primary flex-1 disabled:opacity-50"
+              >
+                다음
+              </button>
+            </div>
+          </div>
+        )}
+
+        {diagnosisStep === 3 && (
+          <div>
+            <h2 className="text-xl font-semibold text-foreground mb-6">어떤 수익이 있나요?</h2>
+            <div className="space-y-3">
+              {["애드센스", "브랜드 협찬", "광고/PPL", "후원/도네이션", "외주 제작", "강의/콘텐츠 판매"].map((type) => (
+                <label key={type} className="flex items-center p-4 border border-border rounded-xl cursor-pointer hover:bg-secondary/50">
+                  <input
+                    type="checkbox"
+                    checked={selectedDiagnosis.incomeTypes.includes(type)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedDiagnosis({
+                          ...selectedDiagnosis,
+                          incomeTypes: [...selectedDiagnosis.incomeTypes, type],
+                        });
+                      } else {
+                        setSelectedDiagnosis({
+                          ...selectedDiagnosis,
+                          incomeTypes: selectedDiagnosis.incomeTypes.filter((t) => t !== type),
+                        });
+                      }
+                    }}
+                    className="w-5 h-5 accent-primary rounded"
+                  />
+                  <span className="ml-3 font-medium text-foreground">{type}</span>
+                </label>
+              ))}
+            </div>
+            <div className="flex gap-3 mt-8">
+              <button onClick={() => setDiagnosisStep(2)} className="btn-secondary flex-1">
+                이전
+              </button>
+              <button
+                onClick={() => setDiagnosisStep(4)}
+                disabled={selectedDiagnosis.incomeTypes.length === 0}
+                className="btn-primary flex-1 disabled:opacity-50"
+              >
+                다음
+              </button>
+            </div>
+          </div>
+        )}
+
+        {diagnosisStep === 4 && (
+          <div>
+            <h2 className="text-xl font-semibold text-foreground mb-6">사업자등록 했나요?</h2>
+            <div className="space-y-3">
+              {["아니요", "네", "잘 모르겠어요"].map((option) => (
+                <label key={option} className="flex items-center p-4 border border-border rounded-xl cursor-pointer hover:bg-secondary/50">
+                  <input
+                    type="radio"
+                    name="business-registered"
+                    checked={selectedDiagnosis.businessRegistered === option}
+                    onChange={() => setSelectedDiagnosis({ ...selectedDiagnosis, businessRegistered: option })}
+                    className="w-5 h-5 accent-primary"
+                  />
+                  <span className="ml-3 font-medium text-foreground">{option}</span>
+                </label>
+              ))}
+            </div>
+            <div className="flex gap-3 mt-8">
+              <button onClick={() => setDiagnosisStep(3)} className="btn-secondary flex-1">
+                이전
+              </button>
+              <button
+                onClick={() => {
+                  setUserProfile({
+                    name: "지현님",
+                    activities: selectedDiagnosis.activities,
+                    incomeLevel: selectedDiagnosis.incomeLevel,
+                    businessRegistered: selectedDiagnosis.businessRegistered === "네",
+                  });
+                  setCurrentFlow("income-connection");
+                }}
+                className="btn-primary flex-1"
+              >
+                진단 완료
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  // 수익 연결
+  const IncomeConnectionScreen = () => (
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-foreground mb-8">수익원 연결</h1>
+
+        <div className="space-y-3 mb-8">
+          {[
+            { icon: "🔗", title: "구글 애드센스 연결", desc: "자동으로 수익 가져오기" },
+            { icon: "▶️", title: "유튜브 수익 가져오기", desc: "채널 연결하기" },
+            { icon: "🏦", title: "은행 계좌 연결", desc: "입금 내역 자동 분류" },
+            { icon: "💳", title: "카드 내역 연결", desc: "거래 기록 동기화" },
+            { icon: "✏️", title: "직접 입력하기", desc: "수동으로 입력" },
+            { icon: "📁", title: "CSV 업로드", desc: "파일로 일괄 등록" },
+          ].map((option, i) => (
+            <button
+              key={i}
+              className="w-full p-4 border border-border rounded-xl hover:bg-secondary/50 transition-colors text-left"
+            >
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">{option.icon}</span>
+                <div>
+                  <p className="font-semibold text-foreground">{option.title}</p>
+                  <p className="text-sm text-muted-foreground">{option.desc}</p>
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <div className="bg-primary/10 p-6 rounded-xl mb-8">
+          <h3 className="font-semibold text-foreground mb-4">확인된 수익</h3>
+          <div className="space-y-3">
+            {incomeData.map((item) => (
+              <div key={item.id} className="flex items-center justify-between p-3 bg-white rounded-lg">
+                <div>
+                  <p className="font-medium text-foreground">{item.source}</p>
+                  <p className="text-sm text-muted-foreground">{item.category}</p>
+                </div>
+                <p className="font-semibold text-primary">₩{item.amount.toLocaleString()}</p>
+              </div>
+            ))}
+          </div>
+          <div className="border-t border-border mt-4 pt-4">
+            <p className="text-sm text-muted-foreground mb-2">총 수익</p>
+            <p className="text-2xl font-bold text-foreground">
+              ₩{incomeData.reduce((sum, item) => sum + item.amount, 0).toLocaleString()}
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setCurrentFlow("income-classification")}
+          className="btn-primary w-full"
+        >
+          수익 분류 확인하기
+        </button>
+      </div>
+    </div>
+  );
+
+  // 수익 분류
+  const IncomeClassificationScreen = () => (
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-foreground mb-6">수익 분류 확인</h1>
+
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+          {["전체", "애드센스", "광고/협찬", "후원", "외주", "미분류"].map((tab) => (
+            <button
+              key={tab}
+              className="px-4 py-2 rounded-full whitespace-nowrap bg-secondary text-foreground font-medium hover:bg-primary hover:text-primary-foreground transition-colors"
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        <div className="space-y-4 mb-8">
+          {incomeData.map((item) => (
+            <div key={item.id} className="p-4 border border-border rounded-xl">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <p className="font-semibold text-foreground">{item.source}</p>
+                  <p className="text-sm text-muted-foreground">₩{item.amount.toLocaleString()}</p>
+                </div>
+                <span className="px-3 py-1 bg-primary/10 text-primary text-sm rounded-full font-medium">
+                  {item.category}
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <button className="flex-1 px-3 py-2 bg-primary/10 text-primary rounded-lg text-sm font-medium hover:bg-primary/20">
+                  맞아요
+                </button>
+                <button className="flex-1 px-3 py-2 border border-border rounded-lg text-sm font-medium hover:bg-secondary">
+                  수정
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={() => setCurrentFlow("expense-connection")}
+          className="btn-primary w-full"
+        >
+          경비 자료 연결하기
+        </button>
+      </div>
+    </div>
+  );
+
+  // 경비 연결
+  const ExpenseConnectionScreen = () => (
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-foreground mb-8">경비 자료 연결</h1>
+
+        <div className="space-y-3 mb-8">
+          {[
+            { icon: "💳", title: "카드 연결", desc: "신용카드 거래내역 자동 분류" },
+            { icon: "📸", title: "영수증 촬영", desc: "카메라로 영수증 인식" },
+            { icon: "✏️", title: "직접 입력", desc: "수동으로 경비 등록" },
+            { icon: "📁", title: "CSV 업로드", desc: "파일로 일괄 등록" },
+          ].map((option, i) => (
+            <button
+              key={i}
+              className="w-full p-4 border border-border rounded-xl hover:bg-secondary/50 transition-colors text-left"
+            >
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">{option.icon}</span>
+                <div>
+                  <p className="font-semibold text-foreground">{option.title}</p>
+                  <p className="text-sm text-muted-foreground">{option.desc}</p>
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <div className="bg-primary/10 p-6 rounded-xl mb-8">
+          <h3 className="font-semibold text-foreground mb-4">업무 경비 후보</h3>
+          <div className="space-y-3">
+            {[
+              { name: "Apple Store", amount: 2890000, category: "촬영/편집 장비", likelihood: "높음" },
+              { name: "Adobe", amount: 77000, category: "편집 소프트웨어", likelihood: "높음" },
+              { name: "스타벅스", amount: 18000, category: "미팅비", likelihood: "보통" },
+            ].map((expense, i) => (
+              <div key={i} className="p-3 bg-white rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-medium text-foreground">{expense.name}</p>
+                  <p className="font-semibold text-primary">₩{expense.amount.toLocaleString()}</p>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <p className="text-muted-foreground">{expense.category}</p>
+                  <span className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium">
+                    인정 가능성: {expense.likelihood}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <button
+          onClick={() => setCurrentFlow("dashboard")}
+          className="btn-primary w-full"
+        >
+          대시보드로 이동
+        </button>
+      </div>
+    </div>
+  );
+
+  // 대시보드
+  const DashboardScreen = () => (
+    <div className="min-h-screen bg-gradient-to-b from-white to-primary/5 pb-24">
+      <div className="sticky top-0 bg-white border-b border-border p-4 z-10">
+        <div className="max-w-2xl mx-auto flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-foreground">대시보드</h1>
+          <button
+            onClick={() => {
+              setIsLoggedIn(false);
+              setCurrentFlow("splash");
+            }}
+            className="p-2 hover:bg-secondary rounded-lg transition-colors"
+          >
+            <LogOut size={20} className="text-foreground" />
+          </button>
+        </div>
+      </div>
+
+      <div className="max-w-2xl mx-auto p-4 space-y-6">
+        {/* 요약 카드 */}
+        <div className="space-y-3">
+          <div className="bg-gradient-to-br from-primary to-primary/80 text-white p-6 rounded-2xl">
+            <p className="text-sm opacity-90 mb-2">2025년 예상 종합소득세</p>
+            <p className="text-4xl font-bold mb-4">3,240,000원</p>
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/20">
+              <div>
+                <p className="text-sm opacity-75">절세 가능 금액</p>
+                <p className="text-xl font-semibold">1,180,000원</p>
+              </div>
+              <div>
+                <p className="text-sm opacity-75">신고 준비율</p>
+                <p className="text-xl font-semibold">72%</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 주요 지표 */}
+        <div className="grid grid-cols-2 gap-4">
+          {[
+            { icon: "💰", title: "올해 총수익", value: "25,900,000원", color: "from-blue-500" },
+            { icon: "📊", title: "인정 경비", value: "8,450,000원", color: "from-purple-500" },
+            { icon: "🧮", title: "과세 예상 소득", value: "17,450,000원", color: "from-orange-500" },
+            { icon: "⚠️", title: "부족한 자료", value: "3개", color: "from-red-500" },
+          ].map((card, i) => (
+            <div key={i} className="bg-white p-4 rounded-xl border border-border">
+              <p className="text-2xl mb-2">{card.icon}</p>
+              <p className="text-sm text-muted-foreground mb-1">{card.title}</p>
+              <p className="text-lg font-bold text-foreground">{card.value}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA 버튼 */}
+        <div className="space-y-3">
+          <button
+            onClick={() => setCurrentFlow("tax-check")}
+            className="btn-primary w-full"
+          >
+            절세 체크 시작하기
+          </button>
+          <button
+            onClick={() => setCurrentFlow("report-preparation")}
+            className="btn-secondary w-full"
+          >
+            신고 준비 계속하기
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // 절세 체크
+  const TaxCheckScreen = () => (
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-foreground mb-8">절세 체크리스트</h1>
+
+        <div className="space-y-3 mb-8">
+          {[
+            { title: "장비 구매내역 반영", status: "complete" },
+            { title: "소프트웨어 구독료 반영", status: "complete" },
+            { title: "통신비 업무 비율 입력", status: "pending" },
+            { title: "집 작업공간 사용 여부 확인", status: "pending" },
+            { title: "외주 편집자 지급내역 입력", status: "pending" },
+            { title: "현금 협찬 내역 확인 필요", status: "warning" },
+          ].map((item, i) => (
+            <div key={i} className="p-4 border border-border rounded-xl flex items-center gap-3">
+              {item.status === "complete" && <CheckCircle2 size={24} className="text-primary flex-shrink-0" />}
+              {item.status === "pending" && <div className="w-6 h-6 border-2 border-border rounded-full flex-shrink-0"></div>}
+              {item.status === "warning" && <AlertCircle size={24} className="text-orange-500 flex-shrink-0" />}
+              <span className="font-medium text-foreground">{item.title}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-primary/10 p-6 rounded-xl mb-8">
+          <h3 className="font-semibold text-foreground mb-4">💡 추천 카드</h3>
+          <p className="text-foreground font-medium mb-3">통신비를 경비로 반영할 수 있어요</p>
+          <div className="bg-white p-4 rounded-lg mb-4">
+            <p className="text-sm text-muted-foreground mb-2">최근 1년 통신비</p>
+            <p className="text-2xl font-bold text-foreground mb-4">1,320,000원</p>
+            <p className="text-sm text-muted-foreground">업무 사용 비율 50% 적용 시</p>
+            <p className="text-lg font-semibold text-primary">예상 절세 효과: 약 99,000원</p>
+          </div>
+          <button className="btn-primary w-full">반영하기</button>
+        </div>
+
+        <button
+          onClick={() => setCurrentFlow("report-preparation")}
+          className="btn-secondary w-full"
+        >
+          신고 준비로 이동
+        </button>
+      </div>
+    </div>
+  );
+
+  // 신고 준비
+  const ReportPreparationScreen = () => (
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-foreground mb-8">신고 준비</h1>
+
+        <div className="bg-primary/10 p-6 rounded-xl mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-foreground">신고 준비율</h3>
+            <span className="text-2xl font-bold text-primary">86%</span>
+          </div>
+          <div className="w-full bg-secondary rounded-full h-3">
+            <div className="bg-primary h-3 rounded-full" style={{ width: "86%" }}></div>
+          </div>
+        </div>
+
+        <div className="mb-8">
+          <h3 className="font-semibold text-foreground mb-4">남은 항목</h3>
+          <div className="space-y-2 text-sm text-muted-foreground">
+            <p>• 원천징수 내역 확인</p>
+            <p>• 협찬 2건 시가 입력</p>
+            <p>• 고액 장비 증빙 추가</p>
+          </div>
+        </div>
+
+        <div className="space-y-3 mb-8">
+          {[
+            { icon: "💰", title: "수익 자료", status: "✓" },
+            { icon: "📊", title: "경비 자료", status: "✓" },
+            { icon: "🤝", title: "협찬 자료", status: "⚠️" },
+            { icon: "📄", title: "원천징수 자료", status: "⚠️" },
+            { icon: "🏢", title: "사업자 정보", status: "✓" },
+            { icon: "👨‍👩‍👧", title: "부양가족/공제 정보", status: "-" },
+          ].map((item, i) => (
+            <div key={i} className="p-4 border border-border rounded-xl flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{item.icon}</span>
+                <span className="font-medium text-foreground">{item.title}</span>
+              </div>
+              <span className="text-lg">{item.status}</span>
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={() => setCurrentFlow("report-generation")}
+          className="btn-primary w-full mb-3"
+        >
+          신고서 생성하기
+        </button>
+        <button className="btn-secondary w-full">
+          사업자등록 가이드
+        </button>
+      </div>
+    </div>
+  );
+
+  // 신고서 생성
+  const ReportGenerationScreen = () => (
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-foreground mb-8">신고 방식 추천</h1>
+
+        <div className="bg-primary/10 p-6 rounded-xl mb-8">
+          <h3 className="text-xl font-bold text-foreground mb-4">장부 신고 추천</h3>
+          <p className="text-muted-foreground mb-6">
+            이유: 장비 구입비가 크고, 소프트웨어/외주비 경비가 많으며, 단순경비율보다 예상 세금이 낮습니다.
+          </p>
+
+          <div className="bg-white p-4 rounded-lg mb-4">
+            <p className="text-sm text-muted-foreground mb-2">단순경비율 신고 예상세액</p>
+            <p className="text-2xl font-bold text-foreground mb-4">4,120,000원</p>
+            <p className="text-sm text-muted-foreground mb-2">장부 신고 예상세액</p>
+            <p className="text-2xl font-bold text-primary mb-4">3,240,000원</p>
+            <div className="border-t border-border pt-4">
+              <p className="text-sm text-muted-foreground mb-1">예상 절세액</p>
+              <p className="text-xl font-bold text-primary">880,000원</p>
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setCurrentFlow("homeTax-guide")}
+          className="btn-primary w-full mb-3"
+        >
+          장부 신고로 진행
+        </button>
+        <button className="btn-secondary w-full">
+          다른 방식 보기
+        </button>
+      </div>
+    </div>
+  );
+
+  // 홈택스 가이드
+  const HomeTaxGuideScreen = () => (
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-foreground mb-8">홈택스 제출 가이드</h1>
+
+        <div className="space-y-4 mb-8">
+          {[
+            {
+              step: 1,
+              title: "홈택스 접속",
+              desc: "www.hometax.go.kr에 접속하여 공인인증서로 로그인",
+            },
+            {
+              step: 2,
+              title: "신고 준비",
+              desc: "신고 > 종합소득세 신고 > 장부신고 선택",
+            },
+            {
+              step: 3,
+              title: "정보 입력",
+              desc: "기본정보, 수익, 경비 정보 입력",
+            },
+            {
+              step: 4,
+              title: "검증",
+              desc: "입력 정보 검증 및 오류 확인",
+            },
+            {
+              step: 5,
+              title: "제출",
+              desc: "신고서 최종 확인 후 제출",
+            },
+          ].map((item) => (
+            <div key={item.step} className="p-4 border border-border rounded-xl">
+              <div className="flex items-start gap-4">
+                <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold flex-shrink-0">
+                  {item.step}
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground mb-1">{item.title}</p>
+                  <p className="text-sm text-muted-foreground">{item.desc}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={() => setCurrentFlow("report-complete")}
+          className="btn-primary w-full"
+        >
+          신고 완료 리포트 보기
+        </button>
+      </div>
+    </div>
+  );
+
+  // 신고 완료
+  const ReportCompleteScreen = () => (
+    <div className="min-h-screen bg-gradient-to-b from-primary/10 to-white flex items-center justify-center p-4">
+      <div className="text-center max-w-2xl">
+        <div className="text-6xl mb-6">🎉</div>
+        <h1 className="text-3xl font-bold text-foreground mb-4">신고 완료!</h1>
+        <p className="text-lg text-muted-foreground mb-8">
+          지현님의 2025년 종합소득세 신고가 완료되었습니다.
+        </p>
+
+        <div className="bg-white p-8 rounded-2xl border border-border mb-8 text-left">
+          <h3 className="font-semibold text-foreground mb-6">신고 요약</h3>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between pb-4 border-b border-border">
+              <span className="text-muted-foreground">총 수익</span>
+              <span className="font-semibold text-foreground">25,900,000원</span>
+            </div>
+            <div className="flex items-center justify-between pb-4 border-b border-border">
+              <span className="text-muted-foreground">인정 경비</span>
+              <span className="font-semibold text-foreground">8,450,000원</span>
+            </div>
+            <div className="flex items-center justify-between pb-4 border-b border-border">
+              <span className="text-muted-foreground">과세 소득</span>
+              <span className="font-semibold text-foreground">17,450,000원</span>
+            </div>
+            <div className="flex items-center justify-between pt-4">
+              <span className="text-muted-foreground">예상 납부세액</span>
+              <span className="font-bold text-primary text-lg">3,240,000원</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-primary/10 p-6 rounded-xl mb-8">
+          <p className="text-sm text-muted-foreground mb-2">절세 효과</p>
+          <p className="text-2xl font-bold text-primary">1,180,000원 절감</p>
+        </div>
+
+        <div className="space-y-3">
+          <button
+            onClick={() => setCurrentFlow("dashboard")}
+            className="btn-primary w-full"
+          >
+            대시보드로 돌아가기
+          </button>
+          <button
+            onClick={() => {
+              setIsLoggedIn(false);
+              setCurrentFlow("splash");
+            }}
+            className="btn-secondary w-full"
+          >
+            로그아웃
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // 플로우 렌더링
+  const renderFlow = () => {
+    switch (currentFlow) {
+      case "splash":
+        return <SplashScreen />;
+      case "auth":
+        return isLoggedIn ? <OnboardingScreen /> : <AuthScreen />;
+      case "onboarding":
+        return <OnboardingScreen />;
+      case "diagnosis":
+        return <DiagnosisScreen />;
+      case "income-connection":
+        return <IncomeConnectionScreen />;
+      case "income-classification":
+        return <IncomeClassificationScreen />;
+      case "expense-connection":
+        return <ExpenseConnectionScreen />;
+      case "dashboard":
+        return <DashboardScreen />;
+      case "tax-check":
+        return <TaxCheckScreen />;
+      case "report-preparation":
+        return <ReportPreparationScreen />;
+      case "report-generation":
+        return <ReportGenerationScreen />;
+      case "homeTax-guide":
+        return <HomeTaxGuideScreen />;
+      case "report-complete":
+        return <ReportCompleteScreen />;
+      default:
+        return <SplashScreen />;
+    }
+  };
+
+  return <div className="min-h-screen bg-background">{renderFlow()}</div>;
 }
