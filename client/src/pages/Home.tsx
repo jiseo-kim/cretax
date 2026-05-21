@@ -42,10 +42,21 @@ type AppFlow =
   | "expense-connection"
   | "dashboard"
   | "tax-check"
+  | "tax-simulation"
+  | "tax-comparison"
+  | "business-analysis"
+  | "risk-engine"
   | "report-preparation"
   | "report-generation"
   | "homeTax-guide"
-  | "report-complete";
+  | "homeTax-input"
+  | "report-rehearsal"
+  | "report-complete"
+  | "monthly-report"
+  | "annual-report"
+  | "document-storage"
+  | "notifications"
+  | "tax-advisor";
 
 interface UserProfile {
   name: string;
@@ -843,6 +854,293 @@ export default function Home() {
         </div>
 
         <button
+          onClick={() => setCurrentFlow("tax-simulation")}
+          className="btn-primary w-full mt-8"
+        >
+          절세 시뮬레이션 보기
+        </button>
+        <button
+          onClick={() => setCurrentFlow("report-preparation")}
+          className="btn-secondary w-full mt-3"
+        >
+          신고 준비로 이동
+        </button>
+      </div>
+    </div>
+  );
+
+  // 절세 시뮬레이션
+  const TaxSimulationScreen = () => (
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-foreground mb-8">절세 시뮬레이션</h1>
+
+        <div className="space-y-6 mb-8">
+          {/* 경비 반영 비교 */}
+          <div className="bg-white border border-border rounded-xl p-6">
+            <h3 className="font-semibold text-foreground mb-6">경비 반영 효과</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 bg-red-50 rounded-lg">
+                <p className="text-sm text-muted-foreground mb-2">반영 전</p>
+                <p className="text-2xl font-bold text-foreground">4,120,000원</p>
+                <p className="text-xs text-muted-foreground mt-2">예상 세금</p>
+              </div>
+              <div className="p-4 bg-primary/10 rounded-lg">
+                <p className="text-sm text-muted-foreground mb-2">반영 후</p>
+                <p className="text-2xl font-bold text-primary">3,240,000원</p>
+                <p className="text-xs text-muted-foreground mt-2">예상 세금</p>
+              </div>
+            </div>
+            <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+              <p className="text-sm text-green-700 font-semibold">💰 절세액: 880,000원</p>
+            </div>
+          </div>
+
+          {/* 추가 절세 기회 */}
+          <div className="bg-white border border-border rounded-xl p-6">
+            <h3 className="font-semibold text-foreground mb-4">추가 절세 기회</h3>
+            <div className="space-y-3">
+              {[
+                { item: "통신비 (50% 반영)", amount: 660000, status: "미반영" },
+                { item: "외주비 증빙", amount: 1200000, status: "미반영" },
+                { item: "작업공간 임차료", amount: 2400000, status: "미반영" },
+              ].map((expense, i) => (
+                <div key={i} className="p-3 border border-border rounded-lg flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-foreground">{expense.item}</p>
+                    <p className="text-sm text-muted-foreground">₩{expense.amount.toLocaleString()}</p>
+                  </div>
+                  <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded font-medium">
+                    {expense.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setCurrentFlow("tax-comparison")}
+          className="btn-primary w-full"
+        >
+          신고 방식 비교하기
+        </button>
+      </div>
+    </div>
+  );
+
+  // 신고 방식 비교
+  const TaxComparisonScreen = () => (
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-foreground mb-8">신고 방식 비교</h1>
+
+        <div className="space-y-4 mb-8">
+          {[
+            {
+              name: "단순경비율",
+              tax: 4120000,
+              pros: ["간단한 신고", "최소 증빙"],
+              cons: ["높은 세금"],
+              recommended: false,
+            },
+            {
+              name: "기준경비율",
+              tax: 3680000,
+              pros: ["중간 수준 세금", "일부 경비 인정"],
+              cons: ["제한된 경비"],
+              recommended: false,
+            },
+            {
+              name: "장부신고",
+              tax: 3240000,
+              pros: ["최저 세금", "모든 경비 인정"],
+              cons: ["복잡한 신고"],
+              recommended: true,
+            },
+          ].map((method, i) => (
+            <div
+              key={i}
+              className={`p-6 rounded-xl border-2 ${
+                method.recommended
+                  ? "border-primary bg-primary/5"
+                  : "border-border bg-white"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-foreground">{method.name}</h3>
+                {method.recommended && (
+                  <span className="px-3 py-1 bg-primary text-white text-xs rounded-full font-semibold">
+                    추천
+                  </span>
+                )}
+              </div>
+              <p className="text-3xl font-bold text-foreground mb-4">₩{method.tax.toLocaleString()}</p>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <p className="text-xs text-muted-foreground mb-2">장점</p>
+                  {method.pros.map((pro, j) => (
+                    <p key={j} className="text-sm text-foreground">✓ {pro}</p>
+                  ))}
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-2">단점</p>
+                  {method.cons.map((con, j) => (
+                    <p key={j} className="text-sm text-foreground">✗ {con}</p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={() => setCurrentFlow("business-analysis")}
+          className="btn-primary w-full"
+        >
+          사업자 전환 분석
+        </button>
+      </div>
+    </div>
+  );
+
+  // 사업자 전환 분석
+  const BusinessAnalysisScreen = () => (
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-foreground mb-8">사업자 전환 분석</h1>
+
+        <div className="bg-primary/10 p-6 rounded-xl mb-8">
+          <h3 className="text-lg font-bold text-foreground mb-4">현재 수익 규모에서는</h3>
+          <p className="text-foreground mb-6">
+            사업자등록을 검토하는 것이 좋아요.
+          </p>
+
+          <div className="space-y-3 mb-6">
+            <div className="p-3 bg-white rounded-lg">
+              <p className="text-sm text-muted-foreground mb-1">현재 수익</p>
+              <p className="text-2xl font-bold text-foreground">25,900,000원</p>
+            </div>
+            <div className="p-3 bg-white rounded-lg">
+              <p className="text-sm text-muted-foreground mb-1">사업자등록 기준</p>
+              <p className="text-2xl font-bold text-foreground">24,000,000원</p>
+            </div>
+          </div>
+
+          <div className="bg-green-50 border border-green-200 p-4 rounded-lg mb-6">
+            <p className="text-sm text-green-700 font-semibold">✓ 사업자등록 대상입니다</p>
+            <p className="text-xs text-green-600 mt-1">부가세 신고 의무 발생</p>
+          </div>
+        </div>
+
+        <div className="bg-white border border-border p-6 rounded-xl mb-8">
+          <h3 className="font-semibold text-foreground mb-4">법인전환 시뮬레이터</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 block">
+                연 수익 (₩)
+              </label>
+              <input
+                type="number"
+                defaultValue="25900000"
+                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground mb-2 block">
+                예상 이익률 (%)
+              </label>
+              <input
+                type="number"
+                defaultValue="65"
+                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-3 mb-8">
+          <div className="p-4 bg-white border border-border rounded-xl">
+            <p className="text-sm text-muted-foreground mb-2">개인사업자 예상세</p>
+            <p className="text-2xl font-bold text-foreground">3,240,000원</p>
+          </div>
+          <div className="p-4 bg-white border border-border rounded-xl">
+            <p className="text-sm text-muted-foreground mb-2">법인 예상세</p>
+            <p className="text-2xl font-bold text-foreground">2,890,000원</p>
+          </div>
+          <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
+            <p className="text-sm text-green-700 mb-2">예상 절세액</p>
+            <p className="text-2xl font-bold text-green-700">350,000원</p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setCurrentFlow("risk-engine")}
+          className="btn-primary w-full"
+        >
+          세무 리스크 분석
+        </button>
+      </div>
+    </div>
+  );
+
+  // 세무 리스크 엔진
+  const RiskEngineScreen = () => (
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-foreground mb-8">세무 리스크 엔진</h1>
+
+        <div className="bg-white border border-border p-6 rounded-xl mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-foreground">세무 안정도</h3>
+            <span className="text-4xl font-bold text-primary">78점</span>
+          </div>
+          <div className="w-full bg-secondary rounded-full h-3">
+            <div className="bg-primary h-3 rounded-full" style={{ width: "78%" }}></div>
+          </div>
+          <p className="text-sm text-muted-foreground mt-3">양호 (70~85점)</p>
+        </div>
+
+        <div className="bg-white border border-border p-6 rounded-xl mb-8">
+          <h3 className="font-semibold text-foreground mb-4">리스크 분석</h3>
+          <div className="space-y-3">
+            {[
+              { risk: "현금입금 과다", level: "높음", icon: "⚠️" },
+              { risk: "증빙 부족", level: "중간", icon: "⚠️" },
+              { risk: "외주 지급 미증빙", level: "높음", icon: "⚠️" },
+              { risk: "개인계좌 사용", level: "낮음", icon: "✓" },
+              { risk: "협찬 누락", level: "중간", icon: "⚠️" },
+            ].map((item, i) => (
+              <div key={i} className="p-3 border border-border rounded-lg flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span>{item.icon}</span>
+                  <p className="font-medium text-foreground">{item.risk}</p>
+                </div>
+                <span
+                  className={`text-xs font-semibold px-2 py-1 rounded ${
+                    item.level === "높음"
+                      ? "bg-red-100 text-red-700"
+                      : item.level === "중간"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : "bg-green-100 text-green-700"
+                  }`}
+                >
+                  {item.level}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-orange-50 border border-orange-200 p-6 rounded-xl mb-8">
+          <h3 className="font-semibold text-foreground mb-3">🔧 리스크 해결 가이드</h3>
+          <p className="text-sm text-foreground mb-4">
+            외주 지급 증빙 업로드를 권장해요.
+          </p>
+          <button className="btn-primary w-full">증빙 업로드하기</button>
+        </div>
+
+        <button
           onClick={() => setCurrentFlow("report-preparation")}
           className="btn-secondary w-full"
         >
@@ -1063,6 +1361,301 @@ export default function Home() {
     </div>
   );
 
+  // 홈택스 입력 패키지
+  const HomeTaxInputScreen = () => (
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-foreground mb-8">홈택스 입력 패키지</h1>
+
+        <div className="bg-white border border-border p-6 rounded-xl mb-8">
+          <h3 className="font-semibold text-foreground mb-6">최종 신고 데이터</h3>
+          <div className="space-y-4">
+            {[
+              { label: "총수입금액", value: "₩42,300,000" },
+              { label: "필요경비", value: "₩15,200,000" },
+              { label: "사업소득금액", value: "₩27,100,000" },
+              { label: "기납부세액", value: "₩1,200,000" },
+            ].map((item, i) => (
+              <div key={i} className="flex items-center justify-between p-3 bg-secondary rounded-lg">
+                <p className="text-foreground font-medium">{item.label}</p>
+                <p className="text-foreground font-bold">{item.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-3 mb-8">
+          <button className="btn-primary w-full">전체 복사</button>
+          <button className="btn-secondary w-full">항목별 복사</button>
+        </div>
+
+        <button
+          onClick={() => setCurrentFlow("report-rehearsal")}
+          className="btn-primary w-full"
+        >
+          신고 리허설 시작
+        </button>
+      </div>
+    </div>
+  );
+
+  // 신고 리허설
+  const ReportRehearsalScreen = () => (
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-foreground mb-8">신고 리허설</h1>
+
+        <div className="bg-green-50 border border-green-200 p-6 rounded-xl mb-8">
+          <h3 className="font-semibold text-green-900 mb-2">✅ 현재 상태로 신고 가능해요</h3>
+          <p className="text-sm text-green-700">모든 필수 항목이 준비되었습니다.</p>
+        </div>
+
+        <div className="bg-white border border-border p-6 rounded-xl mb-8">
+          <h3 className="font-semibold text-foreground mb-4">리스크 평가</h3>
+          <div className="flex items-center gap-4">
+            <div className="text-center">
+              <p className="text-4xl font-bold text-green-600">낮음</p>
+              <p className="text-sm text-muted-foreground mt-2">세무 리스크</p>
+            </div>
+            <div className="flex-1">
+              <p className="text-sm text-muted-foreground mb-2">안정도 점수</p>
+              <div className="w-full bg-secondary rounded-full h-3">
+                <div className="bg-green-500 h-3 rounded-full" style={{ width: "85%" }}></div>
+              </div>
+              <p className="text-sm text-foreground font-semibold mt-2">85/100</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4 mb-8">
+          <h3 className="font-semibold text-foreground">Step-by-step 가이드</h3>
+          {[
+            { step: 1, title: "홈택스 접속", desc: "www.hometax.go.kr 방문" },
+            { step: 2, title: "신고 메뉴 선택", desc: "종합소득세 신고 > 장부신고" },
+            { step: 3, title: "데이터 입력", desc: "준비된 데이터 복사 후 입력" },
+            { step: 4, title: "검증", desc: "오류 확인 및 수정" },
+            { step: 5, title: "제출", desc: "최종 확인 후 제출" },
+          ].map((item) => (
+            <div key={item.step} className="flex gap-4 p-4 border border-border rounded-lg">
+              <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold flex-shrink-0">
+                {item.step}
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">{item.title}</p>
+                <p className="text-sm text-muted-foreground">{item.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={() => setCurrentFlow("report-complete")}
+          className="btn-primary w-full"
+        >
+          신고 완료 리포트 보기
+        </button>
+      </div>
+    </div>
+  );
+
+  // 월간 리포트
+  const MonthlyReportScreen = () => (
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-foreground mb-8">월간 리포트</h1>
+
+        <div className="space-y-6 mb-8">
+          <div className="bg-white border border-border p-6 rounded-xl">
+            <h3 className="font-semibold text-foreground mb-4">5월 요약</h3>
+            <div className="space-y-3">
+              {[
+                { label: "수익 변화", value: "+12.5%", color: "text-green-600" },
+                { label: "비용 변화", value: "-3.2%", color: "text-green-600" },
+                { label: "세금 예상 변화", value: "+8.1%", color: "text-orange-600" },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center justify-between p-3 bg-secondary rounded-lg">
+                  <p className="text-foreground font-medium">{item.label}</p>
+                  <p className={`font-bold ${item.color}`}>{item.value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white border border-border p-6 rounded-xl">
+            <h3 className="font-semibold text-foreground mb-4">플랫폼별 수익</h3>
+            <div className="space-y-2">
+              {[
+                { name: "유튜브", amount: 4200000, percent: 45 },
+                { name: "인스타그램", amount: 2800000, percent: 30 },
+                { name: "협찬", amount: 2100000, percent: 25 },
+              ].map((item, i) => (
+                <div key={i}>
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-sm font-medium text-foreground">{item.name}</p>
+                    <p className="text-sm font-semibold text-foreground">₩{item.amount.toLocaleString()}</p>
+                  </div>
+                  <div className="w-full bg-secondary rounded-full h-2">
+                    <div className="bg-primary h-2 rounded-full" style={{ width: `${item.percent}%` }}></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <button className="btn-primary w-full">PDF 다운로드</button>
+      </div>
+    </div>
+  );
+
+  // 연간 리포트
+  const AnnualReportScreen = () => (
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-foreground mb-8">연간 리포트</h1>
+
+        <div className="space-y-6 mb-8">
+          {[
+            { label: "총매출", value: "₩42,300,000" },
+            { label: "총경비", value: "₩15,200,000" },
+            { label: "순이익", value: "₩27,100,000" },
+          ].map((item, i) => (
+            <div key={i} className="bg-white border border-border p-6 rounded-xl">
+              <p className="text-sm text-muted-foreground mb-2">{item.label}</p>
+              <p className="text-3xl font-bold text-foreground">{item.value}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="space-y-3">
+          <button className="btn-primary w-full">세금 준비 리포트 다운로드</button>
+          <button className="btn-secondary w-full">수익 리포트 다운로드</button>
+          <button className="btn-secondary w-full">경비 리포트 다운로드</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // 자료 보관함
+  const DocumentStorageScreen = () => (
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-foreground mb-8">자료 보관함</h1>
+
+        <div className="space-y-3 mb-8">
+          {[
+            { icon: "📋", title: "계약서", count: 3 },
+            { icon: "🧾", title: "영수증", count: 24 },
+            { icon: "📄", title: "세금계산서", count: 8 },
+            { icon: "🤝", title: "협찬 내역", count: 5 },
+            { icon: "💼", title: "외주 계약", count: 2 },
+            { icon: "📑", title: "원천징수영수증", count: 1 },
+          ].map((item, i) => (
+            <div key={i} className="p-4 border border-border rounded-xl flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{item.icon}</span>
+                <p className="font-medium text-foreground">{item.title}</p>
+              </div>
+              <span className="px-3 py-1 bg-primary/10 text-primary rounded-full font-semibold text-sm">
+                {item.count}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <button className="btn-primary w-full">자료 추가하기</button>
+      </div>
+    </div>
+  );
+
+  // 알림 시스템
+  const NotificationsScreen = () => (
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-foreground mb-8">알림</h1>
+
+        <div className="space-y-3">
+          {[
+            { type: "urgent", icon: "🚨", title: "신고 마감", desc: "5월 31일까지 신고해주세요", time: "2시간 전" },
+            { type: "warning", icon: "⚠️", title: "증빙 누락", desc: "협찬 2건의 증빙이 부족해요", time: "1일 전" },
+            { type: "info", icon: "💡", title: "스마트 알림", desc: "최근 장비 구매가 감지됐어요. 경비 등록할까요?", time: "3일 전" },
+            { type: "success", icon: "✅", title: "데이터 동기화", desc: "은행 계좌 데이터 동기화 완료", time: "1주일 전" },
+          ].map((item, i) => (
+            <div
+              key={i}
+              className={`p-4 border rounded-xl ${
+                item.type === "urgent"
+                  ? "border-red-200 bg-red-50"
+                  : item.type === "warning"
+                  ? "border-orange-200 bg-orange-50"
+                  : item.type === "success"
+                  ? "border-green-200 bg-green-50"
+                  : "border-border bg-white"
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">{item.icon}</span>
+                <div className="flex-1">
+                  <p className="font-semibold text-foreground">{item.title}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{item.desc}</p>
+                  <p className="text-xs text-muted-foreground mt-2">{item.time}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  // 세무사 연결
+  const TaxAdvisorScreen = () => (
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-2xl font-bold text-foreground mb-8">세무사 연결</h1>
+
+        <div className="bg-primary/10 border border-primary/30 p-6 rounded-xl mb-8">
+          <h3 className="font-semibold text-foreground mb-3">🎯 AI 분석 결과</h3>
+          <p className="text-foreground mb-4">
+            고위험 항목이 발견됐어요. 전문가 검토를 추천해요.
+          </p>
+          <div className="space-y-2 text-sm text-foreground mb-4">
+            <p>• 현금입금 과다 (₩5,200,000)</p>
+            <p>• 외주 지급 미증빙 (₩2,100,000)</p>
+            <p>• 협찬 누락 가능성</p>
+          </div>
+        </div>
+
+        <div className="bg-white border border-border p-6 rounded-xl mb-8">
+          <h3 className="font-semibold text-foreground mb-4">이용 가능한 서비스</h3>
+          <div className="space-y-3">
+            {[
+              { icon: "📋", title: "신고 검토", desc: "신고 내용 전문가 검토" },
+              { icon: "📊", title: "장부 검토", desc: "장부 작성 및 검증" },
+              { icon: "💬", title: "세무 상담", desc: "1:1 세무사 상담" },
+              { icon: "🔍", title: "리스크 분석", desc: "세무 리스크 심층 분석" },
+            ].map((item, i) => (
+              <button
+                key={i}
+                className="w-full p-4 border border-border rounded-xl hover:bg-secondary/50 transition-colors text-left"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">{item.icon}</span>
+                  <div>
+                    <p className="font-semibold text-foreground">{item.title}</p>
+                    <p className="text-sm text-muted-foreground">{item.desc}</p>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <button className="btn-primary w-full">세무사 연결하기</button>
+      </div>
+    </div>
+  );
+
   // 플로우 렌더링
   const renderFlow = () => {
     switch (currentFlow) {
@@ -1084,14 +1677,36 @@ export default function Home() {
         return <DashboardScreen />;
       case "tax-check":
         return <TaxCheckScreen />;
+      case "tax-simulation":
+        return <TaxSimulationScreen />;
+      case "tax-comparison":
+        return <TaxComparisonScreen />;
+      case "business-analysis":
+        return <BusinessAnalysisScreen />;
+      case "risk-engine":
+        return <RiskEngineScreen />;
       case "report-preparation":
         return <ReportPreparationScreen />;
       case "report-generation":
         return <ReportGenerationScreen />;
       case "homeTax-guide":
         return <HomeTaxGuideScreen />;
+      case "homeTax-input":
+        return <HomeTaxInputScreen />;
+      case "report-rehearsal":
+        return <ReportRehearsalScreen />;
       case "report-complete":
         return <ReportCompleteScreen />;
+      case "monthly-report":
+        return <MonthlyReportScreen />;
+      case "annual-report":
+        return <AnnualReportScreen />;
+      case "document-storage":
+        return <DocumentStorageScreen />;
+      case "notifications":
+        return <NotificationsScreen />;
+      case "tax-advisor":
+        return <TaxAdvisorScreen />;
       default:
         return <SplashScreen />;
     }
