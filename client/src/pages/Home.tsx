@@ -19,6 +19,7 @@ import {
   Clock,
   FileText,
   Smartphone,
+  ArrowLeft,
 } from "lucide-react";
 
 /**
@@ -188,6 +189,149 @@ export default function Home() {
       return () => clearInterval(interval);
     }
   }, [isLoadingIncome]);
+
+  // 단계별 프로그레스바 계산
+  const getProgressPercentage = (): number => {
+    const stages = [
+      "splash",
+      "auth",
+      "onboarding",
+      "diagnosis",
+      "income-connection",
+      "income-classification",
+      "expense-connection",
+      "dashboard",
+      "tax-check",
+      "tax-simulation",
+      "tax-comparison",
+      "business-analysis",
+      "risk-engine",
+      "report-preparation",
+      "report-generation",
+      "homeTax-guide",
+      "homeTax-input",
+      "report-rehearsal",
+      "report-complete",
+    ];
+    const currentIndex = stages.indexOf(currentFlow);
+    return currentIndex >= 0 ? ((currentIndex + 1) / stages.length) * 100 : 0;
+  };
+
+  // 헤더 컴포넌트
+  const Header = () => {
+    const shouldShowHeader = ![
+      "splash",
+      "auth",
+      "onboarding",
+    ].includes(currentFlow);
+
+    if (!shouldShowHeader) return null;
+
+    const getStageTitle = (): string => {
+      const titles: Record<AppFlow, string> = {
+        diagnosis: "크리에이터 유형 진단",
+        "income-connection": "수익원 연결",
+        "income-classification": "수익 분류 확인",
+        "expense-connection": "경비 자료 연결",
+        dashboard: "세금 상태 대시보드",
+        "tax-check": "절세 체크리스트",
+        "tax-simulation": "절세 시뮬레이션",
+        "tax-comparison": "신고 방식 비교",
+        "business-analysis": "사업자 전환 분석",
+        "risk-engine": "세무 리스크 엔진",
+        "report-preparation": "신고 준비",
+        "report-generation": "신고서 생성",
+        "homeTax-guide": "홈택스 제출 가이드",
+        "homeTax-input": "홈택스 입력 패키지",
+        "report-rehearsal": "신고 리허설",
+        "report-complete": "신고 완료 리포트",
+        "monthly-report": "월간 리포트",
+        "annual-report": "연간 리포트",
+        "document-storage": "자료 보관함",
+        notifications: "알림",
+        "tax-advisor": "세무사 연결",
+        splash: "",
+        auth: "",
+        onboarding: "",
+      };
+      return titles[currentFlow] || "CreTax";
+    };
+
+    return (
+      <div className="sticky top-0 z-50 bg-white border-b border-border">
+        <div className="max-w-2xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              {currentFlow !== "dashboard" && (
+                <button
+                  onClick={() => {
+                    const stages = [
+                      "splash",
+                      "auth",
+                      "onboarding",
+                      "diagnosis",
+                      "income-connection",
+                      "income-classification",
+                      "expense-connection",
+                      "dashboard",
+                      "tax-check",
+                      "tax-simulation",
+                      "tax-comparison",
+                      "business-analysis",
+                      "risk-engine",
+                      "report-preparation",
+                      "report-generation",
+                      "homeTax-guide",
+                      "homeTax-input",
+                      "report-rehearsal",
+                      "report-complete",
+                    ];
+                    const currentIndex = stages.indexOf(currentFlow);
+                    if (currentIndex > 0) {
+                      setCurrentFlow(stages[currentIndex - 1] as AppFlow);
+                    }
+                  }}
+                  className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                >
+                  <ArrowLeft className="w-5 h-5 text-foreground" />
+                </button>
+              )}
+              <div>
+                <p className="text-xs text-muted-foreground font-medium">CreTax</p>
+                <p className="font-semibold text-foreground text-sm">{getStageTitle()}</p>
+              </div>
+            </div>
+            {isLoggedIn && (
+              <button
+                onClick={() => {
+                  setIsLoggedIn(false);
+                  setUserProfile(null);
+                  clearAppState();
+                  setCurrentFlow("splash");
+                }}
+                className="p-2 hover:bg-secondary rounded-lg transition-colors"
+              >
+                <LogOut className="w-5 h-5 text-foreground" />
+              </button>
+            )}
+          </div>
+
+          {/* 프로그레스바 */}
+          <div className="space-y-2">
+            <div className="w-full bg-secondary rounded-full h-2">
+              <div
+                className="bg-primary h-2 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${getProgressPercentage()}%` }}
+              ></div>
+            </div>
+            <p className="text-xs text-muted-foreground text-right">
+              {Math.round(getProgressPercentage())}% 완료
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // 스켈레톤 로더 컴포넌트
   const SkeletonLoader = () => (
@@ -1729,6 +1873,7 @@ export default function Home() {
           animation: fadeInUp 0.5s ease-out forwards;
         }
       `}</style>
+      <Header />
       {renderFlow()}
     </div>
   );
