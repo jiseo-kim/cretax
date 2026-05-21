@@ -79,6 +79,64 @@ export default function Home() {
   const [onboardingStep, setOnboardingStep] = useState(1);
   const [diagnosisStep, setDiagnosisStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoadingIncome, setIsLoadingIncome] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  const [selectedIncomeSource, setSelectedIncomeSource] = useState<string | null>(null);
+
+  // 로딩 시뮬레이션 - 자연스러운 진행 상태바
+  useEffect(() => {
+    if (isLoadingIncome) {
+      const interval = setInterval(() => {
+        setLoadingProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            setTimeout(() => {
+              setIsLoadingIncome(false);
+              setLoadingProgress(0);
+            }, 500);
+            return 100;
+          }
+          // 자연스러운 진행: 처음엔 빠르고 나중엔 느려짐
+          const increment = prev < 30 ? Math.random() * 15 : prev < 70 ? Math.random() * 8 : Math.random() * 3;
+          return Math.min(prev + increment, 99);
+        });
+      }, 300);
+      return () => clearInterval(interval);
+    }
+  }, [isLoadingIncome]);
+
+  // 스켈레톤 로더 컴포넌트
+  const SkeletonLoader = () => (
+    <div className="space-y-4">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="p-4 border border-border rounded-xl">
+          <div className="flex items-start gap-3">
+            <div className="w-12 h-12 bg-secondary rounded-lg animate-pulse"></div>
+            <div className="flex-1 space-y-2">
+              <div className="h-4 bg-secondary rounded w-3/4 animate-pulse"></div>
+              <div className="h-3 bg-secondary rounded w-1/2 animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  // 진행 상태바 컴포넌트
+  const ProgressBar = ({ progress }: { progress: number }) => (
+    <div className="space-y-2 mb-6">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium text-foreground">데이터 로딩 중</p>
+        <span className="text-sm font-semibold text-primary">{Math.round(progress)}%</span>
+      </div>
+      <div className="w-full bg-secondary rounded-full h-3 overflow-hidden shadow-sm">
+        <div
+          className="bg-gradient-to-r from-primary to-primary/80 h-full rounded-full transition-all duration-300 ease-out shadow-lg"
+          style={{ width: `${progress}%` }}
+        ></div>
+      </div>
+    </div>
+  );
 
   // 스플래시 화면
   const SplashScreen = () => (
@@ -408,57 +466,82 @@ export default function Home() {
       <div className="max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold text-foreground mb-8">수익원 연결</h1>
 
-        <div className="space-y-3 mb-8">
-          {[
-            { icon: "🔗", title: "구글 애드센스 연결", desc: "자동으로 수익 가져오기" },
-            { icon: "▶️", title: "유튜브 수익 가져오기", desc: "채널 연결하기" },
-            { icon: "🏦", title: "은행 계좌 연결", desc: "입금 내역 자동 분류" },
-            { icon: "💳", title: "카드 내역 연결", desc: "거래 기록 동기화" },
-            { icon: "✏️", title: "직접 입력하기", desc: "수동으로 입력" },
-            { icon: "📁", title: "CSV 업로드", desc: "파일로 일괄 등록" },
-          ].map((option, i) => (
+        {isLoadingIncome ? (
+          <div className="space-y-6">
+            <ProgressBar progress={loadingProgress} />
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground text-center mb-4">데이터를 불러오는 중입니다...</p>
+              <SkeletonLoader />
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-3 mb-8">
+              {[
+                { icon: "🔗", title: "구글 애드센스 연결", desc: "자동으로 수익 가져오기", id: "adsense" },
+                { icon: "▶️", title: "유튜브 수익 가져오기", desc: "채널 연결하기", id: "youtube" },
+                { icon: "🏦", title: "은행 계좌 연결", desc: "입금 내역 자동 분류", id: "bank" },
+                { icon: "💳", title: "카드 내역 연결", desc: "거래 기록 동기화", id: "card" },
+                { icon: "✏️", title: "직접 입력하기", desc: "수동으로 입력", id: "manual" },
+                { icon: "📁", title: "CSV 업로드", desc: "파일로 일괄 등록", id: "csv" },
+              ].map((option, i) => (
+                <button
+                  key={i}
+                  onClick={() => {
+                    setSelectedIncomeSource(option.id);
+                    setIsLoadingIncome(true);
+                  }}
+                  className="w-full p-4 border border-border rounded-xl hover:bg-secondary/50 hover:shadow-md transition-all text-left group"
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl group-hover:scale-110 transition-transform">{option.icon}</span>
+                    <div className="flex-1">
+                      <p className="font-semibold text-foreground">{option.title}</p>
+                      <p className="text-sm text-muted-foreground">{option.desc}</p>
+                    </div>
+                    <ChevronRight size={20} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <div className="bg-primary/10 p-6 rounded-xl mb-8">
+              <h3 className="font-semibold text-foreground mb-4">✅ 확인된 수익</h3>
+              <div className="space-y-3">
+                {incomeData.map((item, index) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between p-3 bg-white rounded-lg"
+                    style={{
+                      animation: "fadeInUp 0.5s ease-out forwards",
+                      animationDelay: `${index * 100}ms`,
+                      opacity: 0,
+                    }}
+                  >
+                    <div>
+                      <p className="font-medium text-foreground">{item.source}</p>
+                      <p className="text-sm text-muted-foreground">{item.category}</p>
+                    </div>
+                    <p className="font-semibold text-primary">₩{item.amount.toLocaleString()}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="border-t border-border mt-4 pt-4">
+                <p className="text-sm text-muted-foreground mb-2">총 수익</p>
+                <p className="text-2xl font-bold text-foreground">
+                  ₩{incomeData.reduce((sum, item) => sum + item.amount, 0).toLocaleString()}
+                </p>
+              </div>
+            </div>
+
             <button
-              key={i}
-              className="w-full p-4 border border-border rounded-xl hover:bg-secondary/50 transition-colors text-left"
+              onClick={() => setCurrentFlow("income-classification")}
+              className="btn-primary w-full"
             >
-              <div className="flex items-start gap-3">
-                <span className="text-2xl">{option.icon}</span>
-                <div>
-                  <p className="font-semibold text-foreground">{option.title}</p>
-                  <p className="text-sm text-muted-foreground">{option.desc}</p>
-                </div>
-              </div>
+              수익 분류 확인하기
             </button>
-          ))}
-        </div>
-
-        <div className="bg-primary/10 p-6 rounded-xl mb-8">
-          <h3 className="font-semibold text-foreground mb-4">확인된 수익</h3>
-          <div className="space-y-3">
-            {incomeData.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-3 bg-white rounded-lg">
-                <div>
-                  <p className="font-medium text-foreground">{item.source}</p>
-                  <p className="text-sm text-muted-foreground">{item.category}</p>
-                </div>
-                <p className="font-semibold text-primary">₩{item.amount.toLocaleString()}</p>
-              </div>
-            ))}
-          </div>
-          <div className="border-t border-border mt-4 pt-4">
-            <p className="text-sm text-muted-foreground mb-2">총 수익</p>
-            <p className="text-2xl font-bold text-foreground">
-              ₩{incomeData.reduce((sum, item) => sum + item.amount, 0).toLocaleString()}
-            </p>
-          </div>
-        </div>
-
-        <button
-          onClick={() => setCurrentFlow("income-classification")}
-          className="btn-primary w-full"
-        >
-          수익 분류 확인하기
-        </button>
+          </>
+        )}
       </div>
     </div>
   );
@@ -938,5 +1021,24 @@ export default function Home() {
     }
   };
 
-  return <div className="min-h-screen bg-background">{renderFlow()}</div>;
+  return (
+    <div className="min-h-screen bg-background">
+      <style>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in {
+          animation: fadeInUp 0.5s ease-out forwards;
+        }
+      `}</style>
+      {renderFlow()}
+    </div>
+  );
 }
