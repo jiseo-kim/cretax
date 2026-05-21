@@ -29,6 +29,7 @@ import {
  * - Clean, professional, accessible interface
  * - Mobile-first responsive design
  * - Smooth transitions and micro-interactions
+ * - LocalStorage-based persistence for user progress
  */
 
 type AppFlow = 
@@ -61,27 +62,99 @@ interface IncomeItem {
   date: string;
 }
 
+interface AppState {
+  currentFlow: AppFlow;
+  isLoggedIn: boolean;
+  userProfile: UserProfile | null;
+  selectedDiagnosis: {
+    activities: string[];
+    incomeLevel: string;
+    incomeTypes: string[];
+    businessRegistered: string;
+  };
+  onboardingStep: number;
+  diagnosisStep: number;
+  timestamp: number;
+}
+
+// 로컬스토리지 유틸리티
+const STORAGE_KEY = "cretax_app_state";
+
+const loadAppState = (): Partial<AppState> | null => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const state = JSON.parse(saved);
+      // 1시간 이상 지난 데이터는 초기화
+      const now = Date.now();
+      if (now - state.timestamp > 60 * 60 * 1000) {
+        localStorage.removeItem(STORAGE_KEY);
+        return null;
+      }
+      return state;
+    }
+  } catch (error) {
+    console.error("Failed to load app state:", error);
+  }
+  return null;
+};
+
+const saveAppState = (state: AppState) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (error) {
+    console.error("Failed to save app state:", error);
+  }
+};
+
+const clearAppState = () => {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (error) {
+    console.error("Failed to clear app state:", error);
+  }
+};
+
 export default function Home() {
-  const [currentFlow, setCurrentFlow] = useState<AppFlow>("splash");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  // 저장된 상태 로드
+  const savedState = loadAppState();
+
+  const [currentFlow, setCurrentFlow] = useState<AppFlow>(savedState?.currentFlow || "splash");
+  const [isLoggedIn, setIsLoggedIn] = useState(savedState?.isLoggedIn || false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(savedState?.userProfile || null);
   const [incomeData, setIncomeData] = useState<IncomeItem[]>([
     { id: "1", source: "Google AdSense", amount: 1240000, category: "애드센스", date: "2025-01-15" },
     { id: "2", source: "Brand A", amount: 2000000, category: "광고/협찬", date: "2025-01-10" },
     { id: "3", source: "Sponsorship", amount: 1500000, category: "협찬", date: "2025-01-05" },
   ]);
-  const [selectedDiagnosis, setSelectedDiagnosis] = useState({
-    activities: [] as string[],
-    incomeLevel: "",
-    incomeTypes: [] as string[],
-    businessRegistered: "",
-  });
-  const [onboardingStep, setOnboardingStep] = useState(1);
-  const [diagnosisStep, setDiagnosisStep] = useState(1);
+  const [selectedDiagnosis, setSelectedDiagnosis] = useState(
+    savedState?.selectedDiagnosis || {
+      activities: [] as string[],
+      incomeLevel: "",
+      incomeTypes: [] as string[],
+      businessRegistered: "",
+    }
+  );
+  const [onboardingStep, setOnboardingStep] = useState(savedState?.onboardingStep || 1);
+  const [diagnosisStep, setDiagnosisStep] = useState(savedState?.diagnosisStep || 1);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoadingIncome, setIsLoadingIncome] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [selectedIncomeSource, setSelectedIncomeSource] = useState<string | null>(null);
+
+  // 상태 변경 시 자동 저장
+  useEffect(() => {
+    const state: AppState = {
+      currentFlow,
+      isLoggedIn,
+      userProfile,
+      selectedDiagnosis,
+      onboardingStep,
+      diagnosisStep,
+      timestamp: Date.now(),
+    };
+    saveAppState(state);
+  }, [currentFlow, isLoggedIn, userProfile, selectedDiagnosis, onboardingStep, diagnosisStep]);
 
   // 로딩 시뮬레이션 - 자연스러운 진행 상태바
   useEffect(() => {
@@ -669,8 +742,10 @@ export default function Home() {
             onClick={() => {
               setIsLoggedIn(false);
               setCurrentFlow("splash");
+              clearAppState();
             }}
             className="p-2 hover:bg-secondary rounded-lg transition-colors"
+            title="로그아웃 및 진행 상태 초기화"
           >
             <LogOut size={20} className="text-foreground" />
           </button>
@@ -977,6 +1052,7 @@ export default function Home() {
             onClick={() => {
               setIsLoggedIn(false);
               setCurrentFlow("splash");
+              clearAppState();
             }}
             className="btn-secondary w-full"
           >
