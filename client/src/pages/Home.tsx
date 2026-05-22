@@ -615,8 +615,13 @@ export default function Home() {
 
         <button
           onClick={() => {
-            setIsLoadingIncome(true);
-            setTimeout(() => setIsLoadingIncome(false), 3000);
+            if (!isLoadingIncome) {
+              setIsLoadingIncome(true);
+              setTimeout(() => {
+                setIsLoadingIncome(false);
+                setCurrentFlow("expense-connection");
+              }, 3000);
+            }
           }}
           disabled={isLoadingIncome}
           className="w-full py-3 bg-[#FC6226] text-white rounded-xl font-semibold hover:bg-[#E55A1F] transition-colors disabled:opacity-50"
