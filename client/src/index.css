@@ -43,15 +43,15 @@
 }
 
 :root {
-  --primary: #7AF8BC;
-  --primary-foreground: #0F1419;
-  --sidebar-primary: #7AF8BC;
-  --sidebar-primary-foreground: #0F1419;
-  --chart-1: #7AF8BC;
-  --chart-2: #5FE3A1;
-  --chart-3: #45CF88;
-  --chart-4: #2AB86F;
-  --chart-5: #1A8A56;
+  --primary: #FC6226;
+  --primary-foreground: #FFFFFF;
+  --sidebar-primary: #FC6226;
+  --sidebar-primary-foreground: #FFFFFF;
+  --chart-1: #FC6226;
+  --chart-2: #E55A1F;
+  --chart-3: #D94F1A;
+  --chart-4: #C94415;
+  --chart-5: #B93910;
   --radius: 0.75rem;
   --background: #FAFBFC;
   --foreground: #2D3436;
